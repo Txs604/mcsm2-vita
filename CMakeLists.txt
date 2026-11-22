@@ -66,10 +66,10 @@ if (NOT NETCAT_EXE)
 endif()
 
 # Vita application configuration
-set(VITA_APP_NAME "Minecraft: Story Mode")
-set(VITA_TITLEID "MCSM00001")
-set(VITA_VPKNAME "MCSM-1.11")
-set(VITA_VERSION "01.11")
+set(VITA_APP_NAME "Minecraft: Story Mode Season 2")
+set(VITA_TITLEID "MCSM00002")
+set(VITA_VPKNAME "MCSM2-0.1")
+set(VITA_VERSION "00.01")
 set(VITA_MKSFOEX_FLAGS "-d ATTRIBUTE2=12")
 
 # ☠ THE NP COMMUNICATION ID HAS EXACTLY ONE DEFINITION, AND THIS IS IT.
