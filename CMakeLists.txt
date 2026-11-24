@@ -67,7 +67,7 @@ endif()
 
 # Vita application configuration
 set(VITA_APP_NAME "Minecraft: Story Mode Season 2")
-set(VITA_TITLEID "MCSM00002")
+set(VITA_TITLEID "MCSMS2001")
 set(VITA_VPKNAME "MCSM2-0.1")
 set(VITA_VERSION "00.01")
 set(VITA_MKSFOEX_FLAGS "-d ATTRIBUTE2=12")
@@ -139,7 +139,7 @@ else()
 endif()
 
 # Game-specific definitions
-set(DATA_PATH "ux0:data/mcsm/" CACHE STRING "Path to data (with trailing /)")
+set(DATA_PATH "ux0:data/mcsm2/" CACHE STRING "Path to data (with trailing /)")
 set(LIB_MAIN_SO_PATH "${DATA_PATH}libmain.so" CACHE STRING "Path to libmain.so")
 set(LIB_GAMEENGINE_SO_PATH "${DATA_PATH}libGameEngine.so" CACHE STRING "Path to libGameEngine.so")
 set(LIB_SDL2_SO_PATH "${DATA_PATH}libSDL2.so" CACHE STRING "Path to libSDL2.so")
@@ -167,7 +167,7 @@ if (USE_SCELIBC_IO)
   set(MCSM_FIOS_STUB SceFios2_stub)
 endif()
 
-option(ENABLE_TELEMETRY_LOGGING "Enable verbose runtime telemetry in ux0:data/mcsm/loader.log" OFF)
+option(ENABLE_TELEMETRY_LOGGING "Enable verbose runtime telemetry in ux0:data/mcsm2/loader.log" OFF)
 if (ENABLE_TELEMETRY_LOGGING)
   add_definitions(-DDEBUG_SOLOADER -DFALSOJNI_DEBUGLEVEL=2)
 endif()
@@ -410,12 +410,12 @@ vita_create_vpk(${VITA_VPKNAME}.vpk ${VITA_TITLEID} eboot.bin
                 FILE ${CMAKE_SOURCE_DIR}/extras/livearea/icon0.png sce_sys/icon0.png
                 ${MCSM_TROPHY_FILE}
                 FILE ${CMAKE_SOURCE_DIR}/extras/livearea/pic.png sce_sys/pic.png
-                FILE ${CMAKE_SOURCE_DIR}/extras/livearea/bg.png sce_sys/livearea/contents/bgpng
+                FILE ${CMAKE_SOURCE_DIR}/extras/livearea/bg.png sce_sys/livearea/contents/bg.png
                 FILE ${CMAKE_SOURCE_DIR}/extras/livearea/startup.png sce_sys/livearea/contents/startup.png
                 FILE ${CMAKE_SOURCE_DIR}/extras/livearea/template.xml sce_sys/livearea/contents/template.xml
                 )
 
-set(SYNC_DIR "ux0:data/mcsm/")
+set(SYNC_DIR "ux0:data/mcsm2/")
 
 add_custom_target(send
   COMMAND cmake -P "${CMAKE_SOURCE_DIR}/cmake/sync_vpk.cmake"
