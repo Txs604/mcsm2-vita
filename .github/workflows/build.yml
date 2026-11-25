@@ -9,7 +9,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     container:
-      image: vitasdk/vitasdk:latest
+      image: atamanenko/vitasdk-softfp:latest
 
     steps:
       - name: Checkout repository
@@ -19,6 +19,7 @@ jobs:
 
       - name: Configure and Build VPK
         run: |
+          rm -rf build
           mkdir -p build
           cd build
           cmake ..
