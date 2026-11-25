@@ -1,0 +1,31 @@
+name: Build MCSM2 VPK
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container:
+      image: vitasdk/vitasdk:latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Configure and Build VPK
+        run: |
+          mkdir -p build
+          cd build
+          cmake ..
+          make -j$(nproc)
+
+      - name: Upload VPK Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: MCSM2-VPK
+          path: build/*.vpk
