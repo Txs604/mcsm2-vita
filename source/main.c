@@ -104,6 +104,15 @@ enum {
  * with nothing to clear them -- input polling stopped for the rest of the
  * session and the engine stayed parked. Suspend and resume are the only two
  * transitions worth acting on, and only SUSPENDING is a real pause. */
+#ifndef SCE_POWER_CB_SUSPENDING
+#define SCE_POWER_CB_SUSPENDING 0x00100000
+#endif
+#ifndef SCE_POWER_CB_RESUMING
+#define SCE_POWER_CB_RESUMING 0x00200000
+#endif
+#ifndef SCE_POWER_CB_RESUME_LIVEAREA
+#define SCE_POWER_CB_RESUME_LIVEAREA 0x00400000
+#endif
 #define MCSM_POWER_PAUSE_MASK  (SCE_POWER_CB_SUSPENDING)
 #define MCSM_POWER_RESUME_MASK (SCE_POWER_CB_RESUMING | SCE_POWER_CB_RESUME_LIVEAREA)
 
