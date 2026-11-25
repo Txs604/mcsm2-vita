@@ -72,7 +72,7 @@ int  sceNpTrophySetupDialogTerm(void);
  * and still has to be kept in step by hand when the pack is rebuilt;
  * `tools/trp_tool.py setcommid` rewrites it in an existing pack.
  *
- * Overridable at runtime from ux0:data/mcsm/settings/trophy_commid.txt so a
+ * Overridable at runtime from ux0:data/mcsm2/settings/trophy_commid.txt so a
  * differently-built pack can be used without a rebuild. */
 /* Set by CMake from whether extras/trophy/TROPHY.TRP was packaged. Defaults to 1 so
  * an out-of-tree build that never defines it keeps the old behaviour. */
@@ -588,7 +588,7 @@ int mcsm_trophies_init(void) {
     /* An override lets a pack built with a different comm id be used as-is.
      *
      * ☠ IT MUST ANNOUNCE ITSELF. This applied silently, and a stale
-     * ux0:data/mcsm/settings/trophy_commid.txt holding "MCSM00002" survived on the
+     * ux0:data/mcsm2/settings/trophy_commid.txt holding "MCSM00002" survived on the
      * test console long after the build moved to MCSM00001 -- so every launch
      * shipped a pack at sce_sys/trophy/MCSM00001_00/ and then asked the system for
      * MCSM00002, which cannot ever match. That is the same packaged-vs-requested
@@ -658,7 +658,7 @@ int mcsm_trophies_init(void) {
      *
      * There WAS a marker file here that recorded "setup already completed once" and
      * suppressed the dialog on later boots. It was wrong: the marker lives in
-     * ux0:data/mcsm/ and knows nothing about the trophy store, so after the trophies
+     * ux0:data/mcsm2/ and knows nothing about the trophy store, so after the trophies
      * were deleted from the system the marker still said "done" and registration never
      * happened again. Reported from device: deleted the trophies, second boot did not
      * re-initialise them.
@@ -958,5 +958,5 @@ void mcsm_trophies_unlock_by_name(const char *name) {
     static unsigned s_unmapped = 0;
     if (s_unmapped++ < 64u)
         l_info("TROPHY: achievement \"%s\" is UNMAPPED — add a line "
-               "\"trophy_map = %s:<id>\" to ux0:data/mcsm/settings/game.txt", name, name);
+               "\"trophy_map = %s:<id>\" to ux0:data/mcsm2/settings/game.txt", name, name);
 }

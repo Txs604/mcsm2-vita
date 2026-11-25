@@ -36,7 +36,7 @@
 #include "../utils/audio_gain.h"
 
 #ifndef DATA_PATH
-#define DATA_PATH "ux0:data/mcsm/"
+#define DATA_PATH "ux0:data/mcsm2/"
 #endif
 
 /* ---- FMOD Studio 1.06 low-level output ABI (see header comment) ---- */

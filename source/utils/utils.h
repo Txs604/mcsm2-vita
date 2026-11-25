@@ -70,9 +70,9 @@ bool file_exists(const char * path);
 long long file_size(const char * path);
 
 /**
- * Open a user tunable from the canonical ux0:data/mcsm/settings/ directory.
+ * Open a user tunable from the canonical ux0:data/mcsm2/settings/ directory.
  *
- * @param basename Bare file name inside ux0:data/mcsm/settings/.
+ * @param basename Bare file name inside ux0:data/mcsm2/settings/.
  * @param mode     fopen mode (these tunables are read-only in practice).
  *
  * @return open FILE*, or NULL when the settings/ file does not exist.

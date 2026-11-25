@@ -112,7 +112,7 @@ body:
     attributes:
       label: Log file
       description: |
-        The current 1.10 build writes `ux0:data/mcsm/loader.log`. Drag the file in here.
+        The current 1.10 build writes `ux0:data/mcsm2/loader.log`. Drag the file in here.
 
         To capture it: play until the problem happens, close the game (PS button, then close
         from the LiveArea if it is frozen), and copy the file off **before launching again** —

@@ -1298,7 +1298,7 @@ void gl_init() {
      * exhausts, textures have NO fallback -> black. Lowering the threshold
      * gives vitaGL a RAM pool but risks the engine OOMing (threshold=2MB
      * previously crashed boot). The safe balance is UNKNOWN without the real
-     * numbers, so: (1) make it a DEVICE-FILE tunable (ux0:data/mcsm/
+     * numbers, so: (1) make it a DEVICE-FILE tunable (ux0:data/mcsm2/
      * vram_reserve.txt = MB, default 180) so it can be dialed in WITHOUT a
      * rebuild, and (2) LOG the free memory + resulting pool sizes so we can
      * tune precisely. Clamp to a sane 32..208MB.
@@ -1392,7 +1392,7 @@ void gl_init() {
          * 2026-07-29: RAISED TO O2. Two things changed that invert that trade:
          *
          *   1. The compile cost is no longer paid repeatedly. The progcache
-         *      (glGetProgramBinary -> ux0:data/mcsm_progcache) now actually hits
+         *      (glGetProgramBinary -> ux0:data/mcsm2_progcache) now actually hits
          *      -- 274 programs cached on the test console -- since the key-drift
          *      bug was fixed. A shader compiles ONCE per console, ever, and is
          *      reloaded from disk afterwards. The O0 penalty, by contrast, was
@@ -4612,14 +4612,14 @@ void glShaderSource_soloader(GLuint shader, GLsizei count,
 #endif
 
     /* DIAG (opt-in via dump_shaders.txt): write the cooked (post-neutralization)
-     * source the compiler actually receives, to ux0:data/mcsm/cooked/shader_<id>.glsl,
+     * source the compiler actually receives, to ux0:data/mcsm2/cooked/shader_<id>.glsl,
      * so it can be pulled + inspected. No effect on normal boots. */
     {
         static int s_dump = -1;
         if (s_dump < 0) { s_dump = mcsm_cfg()->dump_shaders ? 1 : 0;
-                          if (s_dump) sceIoMkdir("ux0:data/mcsm/cooked", 0777); }
+                          if (s_dump) sceIoMkdir("ux0:data/mcsm2/cooked", 0777); }
         if (s_dump) {
-            char p[96]; snprintf(p, sizeof(p), "ux0:data/mcsm/cooked/shader_%u.glsl", (unsigned)shader);
+            char p[96]; snprintf(p, sizeof(p), "ux0:data/mcsm2/cooked/shader_%u.glsl", (unsigned)shader);
             SceUID fd = sceIoOpen(p, SCE_O_WRONLY | SCE_O_CREAT | SCE_O_TRUNC, 0777);
             if (fd >= 0) { sceIoWrite(fd, str, total_length); sceIoClose(fd); }
         }
@@ -4737,7 +4737,7 @@ extern void glGetAttachedShaders(GLuint, GLsizei, GLsizei *, GLuint *);
 #define GL_PROGRAM_BINARY_LENGTH 0x8741
 #endif
 
-#define PROGCACHE_DIR    "ux0:data/mcsm_progcache"
+#define PROGCACHE_DIR    "ux0:data/mcsm2_progcache"
 /* NOT bumped for the 2026-07-29 O0->O2 compiler change. Bumping the magic
  * invalidates EVERY binary on disk, which would have thrown away the CH1+CH2
  * cache that took real playthroughs to build. The compiler setting is mixed into
@@ -4765,7 +4765,7 @@ static int g_progcache_dir_ready = 0;
 static unsigned g_progcache_hits = 0, g_progcache_misses = 0;
 /* SAVE DIAGNOSTIC counters (2026-07-18): the on-device cache came up EMPTY after
  * play. These pin WHY progcache_save wrote nothing, written via sceIo (reliable,
- * unlike newlib fprintf) to ux0:data/mcsm/progcache_diag.txt. */
+ * unlike newlib fprintf) to ux0:data/mcsm2/progcache_diag.txt. */
 static unsigned g_pc_links = 0, g_pc_key0 = 0, g_pc_notlinked = 0, g_pc_nobin = 0;
 static unsigned g_pc_saveok = 0, g_pc_openfail = 0, g_pc_loadfail = 0;
 static int g_pc_lastopen = 1;
@@ -4902,9 +4902,9 @@ static void dump_miss_sources(GLuint program, uint64_t key) {
     for (GLsizei i = 0; i < n; i++) {
         shader_diag_entry *e = get_shader_diag_entry(sh[i], 0);
         if (!e || !e->owned_source || !e->owned_source_len) continue;
-        if (s_dumped == 0) sceIoMkdir("ux0:data/mcsm/missdump", 0777);
+        if (s_dumped == 0) sceIoMkdir("ux0:data/mcsm2/missdump", 0777);
         char path[128];
-        snprintf(path, sizeof(path), "ux0:data/mcsm/missdump/%08X%08X_%d.glsl",
+        snprintf(path, sizeof(path), "ux0:data/mcsm2/missdump/%08X%08X_%d.glsl",
                  (unsigned)(key >> 32), (unsigned)(key & 0xffffffffu), (int)i);
         SceUID fd = sceIoOpen(path, SCE_O_WRONLY | SCE_O_CREAT | SCE_O_TRUNC, 0777);
         if (fd >= 0) { sceIoWrite(fd, e->owned_source, (SceSize)e->owned_source_len); sceIoClose(fd); s_dumped++; }

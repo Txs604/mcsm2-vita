@@ -196,7 +196,7 @@ typedef struct {
                                * blended surfaces are exactly where this shows. The
                                * value comes only from graphics.txt.                    */
     /* ---- absorbed 2026-08-06 from their own one-off settings files -----------
-     * These were each a separate file under ux0:data/mcsm/settings/ that the
+     * These were each a separate file under ux0:data/mcsm2/settings/ that the
      * owning module opened by hand, which contradicted this header's own promise
      * that there are "exactly two files to edit/ship" -- there were twenty-one.
      * Every one is now a graphics.txt key with the same meaning and the same

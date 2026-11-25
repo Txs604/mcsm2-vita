@@ -371,7 +371,7 @@ enum {
 typedef struct AssetVfd {
     int used;       /* ASSET_VFD_* state; CLOSING rejects new operations. */
     /* 512 (was PATH_MAX=4096) x ASSET_VFD_MAX slots. Real asset paths
-     * (ux0:data/mcsm/Android/obb/<pkg>/NNN.ttarch2:<res>) are ~150 chars; 512 keeps a
+     * (ux0:data/mcsm2/Android/obb/<pkg>/NNN.ttarch2:<res>) are ~150 chars; 512 keeps a
      * 3x margin. All writes here use sizeof(path), so shrinking cannot overflow —
      * this reclaims ~1.8MB of BSS that was reserved for paths that never occur. */
     char path[512];
@@ -1023,12 +1023,12 @@ int asset_vfd_close(int fd) {
 static const char *remap_android_path(const char *path) {
     static char path_buf[1024];
     const char *prefixes[] = {
-        "/sdcard/Android/obb/com.telltalegames.minecraft100/",
-        "/storage/emulated/0/Android/obb/com.telltalegames.minecraft100/",
-        "/mnt/sdcard/Android/obb/com.telltalegames.minecraft100/",
-        "/sdcard/Android/data/com.telltalegames.minecraft100/files/",
-        "/storage/emulated/0/Android/data/com.telltalegames.minecraft100/files/",
-        "/data/data/com.telltalegames.minecraft100/files/",
+        "/sdcard/Android/obb/com.telltalegames.minecraft200/",
+        "/storage/emulated/0/Android/obb/com.telltalegames.minecraft200/",
+        "/mnt/sdcard/Android/obb/com.telltalegames.minecraft200/",
+        "/sdcard/Android/data/com.telltalegames.minecraft200/files/",
+        "/storage/emulated/0/Android/data/com.telltalegames.minecraft200/files/",
+        "/data/data/com.telltalegames.minecraft200/files/",
     };
 
     if (!path) {
@@ -1047,7 +1047,7 @@ static const char *remap_android_path(const char *path) {
      * them with snprintf on EVERY remap (every fopen/open/stat/access during
      * scene loads) was pure waste. Hoist to static literals + sizeof length. */
     {
-        static const char vita_obb_prefix[] = DATA_PATH "Android/obb/com.telltalegames.minecraft100/";
+        static const char vita_obb_prefix[] = DATA_PATH "Android/obb/com.telltalegames.minecraft200/";
         size_t prefix_len = sizeof(vita_obb_prefix) - 1;
         if (strncmp(path, vita_obb_prefix, prefix_len) == 0) {
             sceClibSnprintf(path_buf, sizeof(path_buf), "%s%s", DATA_PATH, path + prefix_len);
@@ -1056,7 +1056,7 @@ static const char *remap_android_path(const char *path) {
     }
 
     {
-        static const char vita_data_prefix[] = DATA_PATH "Android/data/com.telltalegames.minecraft100/files/";
+        static const char vita_data_prefix[] = DATA_PATH "Android/data/com.telltalegames.minecraft200/files/";
         size_t prefix_len = sizeof(vita_data_prefix) - 1;
         if (strncmp(path, vita_data_prefix, prefix_len) == 0) {
             sceClibSnprintf(path_buf, sizeof(path_buf), "%s%s", DATA_PATH, path + prefix_len);
@@ -1080,7 +1080,7 @@ static const char *remap_android_path(const char *path) {
     }
 
     /* Collapse accidental "//" (the engine's <Temp> logical resolution emits e.g.
-     * "ux0:data/mcsm//Temp/choice.prop"; sceIo does NOT normalize "//", so opening
+     * "ux0:data/mcsm2//Temp/choice.prop"; sceIo does NOT normalize "//", so opening
      * OR stat/access'ing an existing file at that path returns -1. That broke the
      * crowd-choice read — ResourceExists('choice.prop') saw the double-slash path
      * as missing, so the "% of players chose" stats never loaded, even though the
@@ -1204,7 +1204,7 @@ int open_soloader(const char * path, int oflag, ...) {
 
 /* SAVE-FILE FIX (2026-06-23): mkdir/rename/unlink/remove/access were bound to raw
  * libc in dynlib.c, so they ran on the engine's Android paths
- * (/data/data/com.telltalegames.minecraft100/files/..., /sdcard/...) which do NOT
+ * (/data/data/com.telltalegames.minecraft200/files/..., /sdcard/...) which do NOT
  * exist on Vita. Result: the save directory was never created and the
  * write-temp-then-rename save commit failed, so starting a new episode could not
  * persist its session and the engine aborted back to the menu (the confirm->load->

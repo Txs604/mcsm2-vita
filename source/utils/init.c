@@ -250,7 +250,7 @@ static void ensure_minecraft102_descriptor(void) {
  * (same shape as the Minecraft102 one, templated with the chapter number). This is
  * a FALLBACK — if the user drops the chapter's REAL _resdesc_50_*.lua alongside the
  * archives, file_exists(desc_path) is true and we skip (real one wins). Result:
- * drop a chapter's archives (+ optional real descriptors) into ux0:data/mcsm/assets/
+ * drop a chapter's archives (+ optional real descriptors) into ux0:data/mcsm2/assets/
  * and it is detected + mounts on next boot, with NO code change per chapter. */
 static void ensure_chapter_descriptor(int ch) {
     char marker[256], desc_path[256], buf[2048];
@@ -393,7 +393,7 @@ static void seed_empty_prefs_files(void) {
     /* GameEngine::SavePrefs (native) serializes GetPreferences() to the
      * resource "prefs.prop" but EARLY-OUTS unless that resource is already
      * locatable (ResourceFinder::LocateResource != null). The Android files
-     * dir maps to DATA_PATH (ux0:data/mcsm/) via our getFilesDir stub, so
+     * dir maps to DATA_PATH (ux0:data/mcsm2/) via our getFilesDir stub, so
      * seed the empty file at BOTH the data-root (where the engine's default
      * resource location searches) and Temp/ (where our save system lives),
      * plus the user.prop + game_prefs.prop variants the engine also probes.
@@ -623,7 +623,7 @@ void mcsm_sync_prefs_after_save(void) {
          * COST A ROUND OF DEVICE TESTING.
          *
          * Device log 2026-08-11, inside SavePrefs #1:
-         *     SAVEIO open fd=4 flags=0x601 ux0:data/mcsm/Temp/prefs.prop
+         *     SAVEIO open fd=4 flags=0x601 ux0:data/mcsm2/Temp/prefs.prop
          *     SAVEIO write fd=4 count=64 -> 64
          *     SAVETRACE: SavePrefs RETURN #1
          *     PREFSYNC: ...NO preference file changed...      <- said while it HAD
@@ -972,14 +972,14 @@ void mcsm_save_backup_pass(void) {
  * fills. Ship the cache pre-filled: a full-playthrough's worth of compiled
  * .gxp binaries (1001 programs, ~2.3MB) is bundled in the VPK as
  * app0:/progcache_seed.bin (a simple [MCPB|count|{nameLen,name,dataLen,data}
- * ...] blob) and unpacked into ux0:data/mcsm_progcache/ on first boot. Files
+ * ...] blob) and unpacked into ux0:data/mcsm2_progcache/ on first boot. Files
  * that already exist are SKIPPED (never clobber a newer/user-compiled entry),
  * so this is a one-time cold-start seed that self-disables once populated.
  * Result: a fresh device plays already-covered content with ZERO shader
  * stutters -- the compiles happened once, on the dev device, and ship
  * pre-done (the console "precompiled PSO cache" model). */
 static void seed_shader_cache(void) {
-    const char *dir = "ux0:data/mcsm_progcache";
+    const char *dir = "ux0:data/mcsm2_progcache";
     const char *blob_path = "app0:/progcache_seed.bin";
 
     /* Always ensure the progcache dir exists at boot, even when NO seed blob is

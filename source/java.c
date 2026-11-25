@@ -403,10 +403,10 @@ static jobject ret_string(const char *value) {
 }
 
 static jobject GetExternalStorageDirectory(jmethodID id, va_list args) { (void)id; (void)args; return ret_string("/sdcard"); }
-static jobject GetPackageName(jmethodID id, va_list args) { (void)id; (void)args; return ret_string("com.telltalegames.minecraft100"); }
-static jobject GetObbFileName(jmethodID id, va_list args) { (void)id; const int is_main = va_arg(args, int); if (is_main) return ret_string(DATA_PATH "main.40129.com.telltalegames.minecraft100.obb"); return ret_string(DATA_PATH "patch.40135.com.telltalegames.minecraft100.obb"); }
+static jobject GetPackageName(jmethodID id, va_list args) { (void)id; (void)args; return ret_string("com.telltalegames.minecraft200"); }
+static jobject GetObbFileName(jmethodID id, va_list args) { (void)id; const int is_main = va_arg(args, int); if (is_main) return ret_string(DATA_PATH "main.40129.com.telltalegames.minecraft200.obb"); return ret_string(DATA_PATH "patch.40135.com.telltalegames.minecraft200.obb"); }
 static jobject GetExternalStoragePath(jmethodID id, va_list args) { (void)id; (void)args; return ret_string(DATA_PATH); }
-static jobject GetInternalStoragePath(jmethodID id, va_list args) { (void)id; (void)args; return ret_string("/data/data/com.telltalegames.minecraft100/files"); }
+static jobject GetInternalStoragePath(jmethodID id, va_list args) { (void)id; (void)args; return ret_string("/data/data/com.telltalegames.minecraft200/files"); }
 static jobject GetContext(jmethodID id, va_list args) { (void)id; (void)args; ensure_runtime_fields(); return g_context_obj; }
 static jobject GetApplicationContext(jmethodID id, va_list args) { (void)id; (void)args; ensure_runtime_fields(); return g_context_obj; }
 static jobject GetAssets(jmethodID id, va_list args) { (void)id; (void)args; ensure_runtime_fields(); return g_asset_manager_obj; }
@@ -561,7 +561,7 @@ static jobject GetPurchasedSkus(jmethodID id, va_list args) {
 
 // Download manager stubs: the game's DownloadManager probes Google Play
 // service endpoints for OBB download progress and license verification.
-// On Vita all data is pre-installed at ux0:data/mcsm/ — immediately report
+// On Vita all data is pre-installed at ux0:data/mcsm2/ — immediately report
 // "downloaded, not downloading, 100% progress, license valid".
 static jboolean IsDownloaded(jmethodID id, va_list args) {
     (void)id; (void)args;

@@ -2379,7 +2379,7 @@ static int hook_ge_open_user_space(void *self) {
 /* ★ 2026-08-11 — TRACE THE PREFERENCE **LOAD**, BECAUSE THE WRITE IS FINE.
  *
  * The device settled the write side: SavePrefs produces a valid 64-byte MSV5
- * property set at ux0:data/mcsm/Temp/prefs.prop. Settings still do not persist,
+ * property set at ux0:data/mcsm2/Temp/prefs.prop. Settings still do not persist,
  * so what fails is reading it back — and the same log shows prefs.prop is never
  * opened for READING at any point in a session, including boot.
  *
@@ -3159,8 +3159,8 @@ static void *hook_platform_android_get_base_user_directory(void *out_str, void *
          * device log proved it was actively harmful: <Temp> is apparently
          * defined RELATIVE to this same base-directory string, so forcing it
          * to DATA_PATH "User/" shifted <Temp> to nest under it too, and every
-         * save wrote to the doubled path "ux0:data/mcsm/User/Temp/..."
-         * instead of the known-good "ux0:data/mcsm/Temp/...". <Temp> writes
+         * save wrote to the doubled path "ux0:data/mcsm2/User/Temp/..."
+         * instead of the known-good "ux0:data/mcsm2/Temp/...". <Temp> writes
          * were ALREADY proven working (SAVEIO logs) in sessions before this
          * hook ever existed, using whatever this function originally
          * returned -- leave it alone and let <Temp> resolve exactly as it
@@ -6128,7 +6128,7 @@ static int ch2_resource_set_exists_probe(void *L, const char *name) {
  * Net/_resdesc_50_Minecraft102_android-pvr.lua with _currentDirectory
  * resolved to the absolute Net/ path. */
 static const char k_ch2_register_script[] =
-    "local d = \"ux0:data/mcsm/Net/\"\n"
+    "local d = \"ux0:data/mcsm2/Net/\"\n"
     "local set = {}\n"
     "set.name = \"Minecraft102\"\n"
     "set.setName = \"Minecraft102\"\n"

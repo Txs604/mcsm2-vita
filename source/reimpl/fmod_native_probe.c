@@ -42,7 +42,7 @@
 #include "../utils/config.h"   /* fmod_probe */
 
 #ifndef DATA_PATH
-#define DATA_PATH "ux0:data/mcsm/"
+#define DATA_PATH "ux0:data/mcsm2/"
 #endif
 
 static const struct { const char *name; uint32_t nid; } k_fmod_probe_nids[] = {
@@ -79,7 +79,7 @@ static int probe_symbol(const char *modname, const char *sym, uint32_t nid) {
 void mcsm_fmod_native_probe(void) {
     if (!mcsm_game()->fmod_probe) return;   /* game.txt fmod_probe */
 
-    /* r41 tried ux0:data/mcsm/ and got 0x8002D003 with the file definitely present
+    /* r41 tried ux0:data/mcsm2/ and got 0x8002D003 with the file definitely present
      * (verified 1156243 bytes over FTP). That is the sandbox, not a missing file:
      * a user app may read ux0:data freely but sceKernelLoadStartModule will only
      * take modules from the application's OWN mount. NetStream ships these under

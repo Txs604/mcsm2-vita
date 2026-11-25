@@ -203,14 +203,14 @@ char * getenv_soloader(const char * var) {
     static char env_one[] = "1";
     static char env_openssl_conf[] = "app0:/openssl.cnf";
     static char env_lua_path[] =
-            "ux0:data/mcsm/?.lua;"
-            "ux0:data/mcsm/?/init.lua;"
-            "ux0:data/mcsm/scripts/?.lua;"
-            "ux0:data/mcsm/scripts/?/init.lua;"
+            "ux0:data/mcsm2/?.lua;"
+            "ux0:data/mcsm2/?/init.lua;"
+            "ux0:data/mcsm2/scripts/?.lua;"
+            "ux0:data/mcsm2/scripts/?/init.lua;"
             "./?.lua;./?/init.lua";
     static char env_lua_cpath[] =
-            "ux0:data/mcsm/?.so;"
-            "ux0:data/mcsm/clibs/?.so;"
+            "ux0:data/mcsm2/?.so;"
+            "ux0:data/mcsm2/clibs/?.so;"
             "./?.so;./loadall.so";
     if (!var) return NULL;
     if (strcmp(var, "SDL_VIDEODRIVER") == 0) return env_android;

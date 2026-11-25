@@ -98,7 +98,7 @@ dotnet publish $projectFile `
     --output $output
 if ($LASTEXITCODE -ne 0) { throw "Publish failed." }
 
-$exe = Join-Path $output "MCSM-Vita-Data-Builder.exe"
+$exe = Join-Path $output "MCSM2-Vita-Data-Builder.exe"
 if (-not (Test-Path -LiteralPath $exe)) { throw "Expected executable was not created: $exe" }
 
 $hash = $null
