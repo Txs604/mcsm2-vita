@@ -19,6 +19,10 @@ jobs:
 
       - name: Configure and Build VPK
         run: |
+          apt-get update && apt-get install -y pngquant
+          for f in $(find . -name "*.png" ! -name "pic0.png" ! -path "./build/*"); do
+            pngquant --force --ext .png "$f" || true
+          done
           rm -rf build
           mkdir -p build
           cd build
