@@ -149,6 +149,12 @@ extern so_module so_mod_pvr_gpu;extern so_module so_mod_pvr_gles1;
 extern so_module so_mod_pvr_pvr2d;
 extern so_module so_mod_pvr_wsegl;
 #endif
+static void *eglCreatePbufferSurface_soloader(void *dpy, void *config, const int *attrib_list) {
+    (void)dpy;
+    (void)config;
+    (void)attrib_list;
+    return (void *)1;
+}
 
 static FILE __sF_fake[3];
 
@@ -650,6 +656,8 @@ so_default_dynlib default_dynlib[] = {
         { "eglChooseConfig", EGLFN(eglChooseConfig) },
         { "eglCreateContext", EGLFN(eglCreateContext) },
         { "eglCreateWindowSurface", EGLFN(eglCreateWindowSurface) },
+        { "eglCreatePbufferSurface", (uintptr_t)&eglCreatePbufferSurface_soloader },
+        { "_eglCreatePbufferSurface", (uintptr_t)&eglCreatePbufferSurface_soloader },
         { "eglDestroyContext", EGLFN(eglDestroyContext) },
         { "eglDestroySurface", EGLFN(eglDestroySurface) },
         { "eglGetConfigAttrib", EGLFN(eglGetConfigAttrib) },
