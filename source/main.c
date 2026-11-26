@@ -969,11 +969,11 @@ int main(void) {
     start_lifecycle_thread();
     start_input_poll_thread();
 
-    // pthread_t watchdog;
-    // pthread_attr_t watchdog_attr;
-    // pthread_attr_init(&watchdog_attr);
-    // pthread_attr_setstacksize(&watchdog_attr, 0x100000);
-    // pthread_create(&watchdog, &watchdog_attr, watchdog_thread, NULL);
+    pthread_t watchdog;
+    pthread_attr_t watchdog_attr;
+    pthread_attr_init(&watchdog_attr);
+    pthread_attr_setstacksize(&watchdog_attr, 0x100000);
+    pthread_create(&watchdog, &watchdog_attr, watchdog_thread, NULL);
 
     // pthread_t thread;
     // pthread_attr_t attr;
