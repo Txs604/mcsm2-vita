@@ -908,9 +908,6 @@ static void *run_game(void *arg) {
         launch_state_set_stage(LS_NATIVEINIT_CALL);
         telemetry_log("BOOT", "calling nativeInit");
 
-       launch_state_set_stage(LS_NATIVEINIT_CALL);
-        telemetry_log("BOOT", "calling nativeInit");
-
         if (so_mod_main.text_base != 0 && native_init) {
             native_init(&jni, NULL, NULL);
         }
@@ -976,9 +973,10 @@ int main(void) {
      * present. splash.c/.h, its GL half in glutil.c and the packaged splash.raw are
      * all gone; see CHANGES_2026-07-31_r100.md for what it did and why. */
 
-   // Temporary test: bypass soloader_init_all() and startup threads to isolate C2-12828-1
     launch_state_set_stage(LS_SOLOADER_INIT);
+    telemetry_log("BOOT", "calling soloader_init_all")
     soloader_init_all();
+    telemetry_log("BOOT", "soloader_init_all returned");
     start_lifecycle_thread();
     start_input_poll_thread();
 
