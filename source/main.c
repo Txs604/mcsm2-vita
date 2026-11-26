@@ -966,8 +966,8 @@ int main(void) {
    // Temporary test: bypass soloader_init_all() and startup threads to isolate C2-12828-1
     launch_state_set_stage(LS_SOLOADER_INIT);
     soloader_init_all();
-    // start_lifecycle_thread();
-    // start_input_poll_thread();
+    start_lifecycle_thread();
+    start_input_poll_thread();
 
     // pthread_t watchdog;
     // pthread_attr_t watchdog_attr;
