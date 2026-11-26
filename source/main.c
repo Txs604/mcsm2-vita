@@ -967,13 +967,17 @@ int main(void) {
     telemetry_log("BOOT", "calling soloader_init_all");
     soloader_init_all();
     telemetry_log("BOOT", "soloader_init_all returned");
+
+    telemetry_log("BOOT", "starting lifecycle and input threads");
     start_lifecycle_thread();
     start_input_poll_thread();
+    telemetry_log("BOOT", "lifecycle and input threads started");
 
     pthread_t watchdog;
     pthread_attr_t watchdog_attr;
     pthread_attr_init(&watchdog_attr);
     pthread_attr_setstacksize(&watchdog_attr, 0x100000);
+    telemetry_log("BOOT", "creating watchdog thread");
     pthread_create(&watchdog, &watchdog_attr, watchdog_thread, NULL);
 
     pthread_t thread;
