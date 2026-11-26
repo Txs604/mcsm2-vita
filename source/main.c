@@ -988,12 +988,12 @@ int main(void) {
     pthread_attr_setstacksize(&watchdog_attr, 0x100000);
     pthread_create(&watchdog, &watchdog_attr, watchdog_thread, NULL);
 
-    // pthread_t thread;
-    // pthread_attr_t attr;
-    // pthread_attr_init(&attr);
-    // pthread_attr_setstacksize(&attr, 0xA00000);
-    // pthread_create(&thread, &attr, run_game, NULL);
-    // pthread_join(thread, NULL);
+    pthread_t thread;
+    pthread_attr_t attr;
+    pthread_attr_init(&attr);
+    pthread_attr_setstacksize(&attr, 0xA00000);
+    pthread_create(&thread, &attr, run_game, NULL);
+    pthread_join(thread, NULL);
 
     sceKernelExitDeleteThread(0);
 }
