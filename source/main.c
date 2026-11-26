@@ -265,6 +265,10 @@ static void emit_stall_report(const char *reason, const char *snapshot) {
 
 static void call_module_jni_onload(const char *module_name, so_module *module, LaunchStage stage) {
     launch_state_set_stage(stage);
+    if (!module) {
+        telemetry_log("BOOT", "JNI_OnLoad skipped (%s: module NULL)", module_name);
+        return;
+    }
     jint (*jni_onload)(JavaVM *vm, void *reserved) = (void *)so_symbol(module, "JNI_OnLoad");
     if (jni_onload) {
         telemetry_log("BOOT", "calling JNI_OnLoad (%s)", module_name);
@@ -904,7 +908,12 @@ static void *run_game(void *arg) {
         launch_state_set_stage(LS_NATIVEINIT_CALL);
         telemetry_log("BOOT", "calling nativeInit");
 
-        native_init(&jni, NULL, NULL);
+       launch_state_set_stage(LS_NATIVEINIT_CALL);
+        telemetry_log("BOOT", "calling nativeInit");
+
+        if (so_mod_main.text_base != 0 && native_init) {
+            native_init(&jni, NULL, NULL);
+        }
         launch_state_set_stage(LS_NATIVEINIT_RETURN);
         telemetry_log("BOOT", "nativeInit returned");
 
@@ -915,18 +924,22 @@ static void *run_game(void *arg) {
         telemetry_log("BOOT", "nativeInit missing");
     }
 
-    int (*sdl_main)(void) = (void *)so_symbol(&so_mod_main, "SDL_main");
+    int (*sdl_main)(void) = NULL;
+    if (so_mod_main.text_base != 0) {
+        sdl_main = (int (*)(void))so_symbol(&so_mod_main, "SDL_main");
+    }
+
     if (!sdl_main && !native_init) {
         telemetry_log("BOOT", "SDL_main missing");
         fatal_error("Neither nativeInit nor SDL_main was found in libmain.so.");
     }
 
-    if (sdl_main) {
+    if (!native_init && sdl_main) {
         launch_state_set_stage(LS_SDL_MAIN_CALL);
         telemetry_log("BOOT", "calling SDL_main");
-        sdl_main();
+        int rc = sdl_main();
         launch_state_set_stage(LS_SDL_MAIN_RETURN);
-        telemetry_log("BOOT", "SDL_main returned");
+        telemetry_log("BOOT", "SDL_main returned rc=%d", rc);
     }
 
     launch_state_set_stage(LS_IDLE_LOOP);

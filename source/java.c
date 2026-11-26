@@ -405,7 +405,7 @@ static jobject ret_string(const char *value) {
 
 static jobject GetExternalStorageDirectory(jmethodID id, va_list args) { (void)id; (void)args; return ret_string("/sdcard"); }
 static jobject GetPackageName(jmethodID id, va_list args) { (void)id; (void)args; return ret_string("com.telltalegames.minecraft200"); }
-static jobject GetObbFileName(jmethodID id, va_list args) { (void)id; const int is_main = va_arg(args, int); if (is_main) return ret_string(DATA_PATH "main.40129.com.telltalegames.minecraft200.obb"); return ret_string(DATA_PATH "patch.40135.com.telltalegames.minecraft200.obb"); }
+static jobject GetObbFileName(jmethodID id, va_list args) { (void)id; const int is_main = va_arg(args, int); if (is_main) return ret_string(DATA_PATH "main.20101.com.telltalegames.minecraft200.obb"); return ret_string(DATA_PATH "patch.20111.com.telltalegames.minecraft200.obb"); }
 static jobject GetExternalStoragePath(jmethodID id, va_list args) { (void)id; (void)args; return ret_string(DATA_PATH); }
 static jobject GetInternalStoragePath(jmethodID id, va_list args) { (void)id; (void)args; return ret_string("/data/data/com.telltalegames.minecraft200/files"); }
 static jobject GetContext(jmethodID id, va_list args) { (void)id; (void)args; ensure_runtime_fields(); return g_context_obj; }
@@ -441,10 +441,17 @@ static void AudioWriteShortBuffer(jmethodID id, va_list args) {
 #ifdef DEBUG_SOLOADER
     { static unsigned int s_aws = 0; if (s_aws++ < 4U) l_info("AUDIO writeShort #%u samples=%d (FMOD driving audio)", s_aws, sample_count); }
 #endif
-    if (sample_count <= 0) sample_count = 1024;
+    if (!buffer || sample_count <= 0) {
+        audio_write_sleep_us((sample_count > 0 ? sample_count : 1024) * 2);
+        return;
+    }
     jshort *samples = jni->GetShortArrayElements(&jni, (jshortArray)buffer, NULL);
-    if (samples) { audio_output_i16_frames(samples, sample_count / clamp_audio_channels(g_audio_channels), clamp_audio_channels(g_audio_channels)); jni->ReleaseShortArrayElements(&jni, (jshortArray)buffer, samples, 0); }
-    else audio_write_sleep_us(sample_count * 2);
+    if (samples) {
+        audio_output_i16_frames(samples, sample_count / clamp_audio_channels(g_audio_channels), clamp_audio_channels(g_audio_channels));
+        jni->ReleaseShortArrayElements(&jni, (jshortArray)buffer, samples, 0);
+    } else {
+        audio_write_sleep_us(sample_count * 2);
+    }
 }
 
 static void AudioWriteByteBuffer(jmethodID id, va_list args) {
@@ -453,10 +460,17 @@ static void AudioWriteByteBuffer(jmethodID id, va_list args) {
 #ifdef DEBUG_SOLOADER
     { static unsigned int s_awb = 0; if (s_awb++ < 4U) l_info("AUDIO writeByte #%u bytes=%d (FMOD driving audio)", s_awb, byte_count); }
 #endif
-    if (byte_count <= 0) byte_count = 4096;
+    if (!buffer || byte_count <= 0) {
+        audio_write_sleep_us(byte_count > 0 ? byte_count : 4096);
+        return;
+    }
     jbyte *bytes = jni->GetByteArrayElements(&jni, (jbyteArray)buffer, NULL);
-    if (bytes) { audio_output_byte_buffer(bytes, byte_count); jni->ReleaseByteArrayElements(&jni, (jbyteArray)buffer, bytes, 0); }
-    else audio_write_sleep_us(byte_count);
+    if (bytes) {
+        audio_output_byte_buffer(bytes, byte_count);
+        jni->ReleaseByteArrayElements(&jni, (jbyteArray)buffer, bytes, 0);
+    } else {
+        audio_write_sleep_us(byte_count);
+    }
 }
 
 static void AudioQuit(jmethodID id, va_list args) { (void)id; (void)args; audio_close_port(); }
@@ -669,14 +683,9 @@ static jboolean GetGenericTextDialogFinished(jmethodID id, va_list args) {
 
 static jboolean GetGenericTextDialogCancelled(jmethodID id, va_list args) {
     (void)id; (void)args;
+    if (!s_text_dialog_open) return JNI_FALSE;
     int cancelled = 0;
     (void)mcsm_vkbd_result(&cancelled);
-    /* Cancel is a TERMINAL answer, so retire the dialog here too. Clearing only in
-     * ...Value() left a cancelled dialog "open" forever whenever the engine reads
-     * Cancelled and then skips Value -- and because `finished` also stays set, the next
-     * getGenericTextDialogFinished poll (before any new open) would answer TRUE
-     * immediately and hand back the previous dialog's text. A rename to a stale name,
-     * with nothing logged. */
     if (cancelled) s_text_dialog_open = 0;
     return cancelled ? JNI_TRUE : JNI_FALSE;
 }
@@ -791,11 +800,16 @@ static void AudioDeviceClose(jmethodID id, va_list args) { (void)id; (void)args;
 static void AudioDeviceWrite(jmethodID id, va_list args) {
     (void)id; jobject buffer = va_arg(args, jobject); int size = va_arg(args, int);
     int byte_count = buffer ? jni->GetArrayLength(&jni, buffer) : 0;
-    if (size > 0 && (byte_count == 0 || size < byte_count)) byte_count = size;
+    if (!buffer) byte_count = 0;
+    else if (size > 0 && (byte_count == 0 || size < byte_count)) byte_count = size;
     if (size <= 0) size = 4096;
     jbyte *bytes = buffer ? jni->GetByteArrayElements(&jni, (jbyteArray)buffer, NULL) : NULL;
-    if (bytes && byte_count > 0) { audio_output_byte_buffer(bytes, byte_count); jni->ReleaseByteArrayElements(&jni, (jbyteArray)buffer, bytes, 0); }
-    else audio_write_sleep_us(size);
+    if (bytes && byte_count > 0) {
+        audio_output_byte_buffer(bytes, byte_count);
+        jni->ReleaseByteArrayElements(&jni, (jbyteArray)buffer, bytes, 0);
+    } else {
+        audio_write_sleep_us(size);
+    }
 }
 
 static jobject GetHardwareDisplay(jmethodID id, va_list args) { (void)id; (void)args; ensure_framebuffer_override_loaded(); char buf[32]; snprintf(buf, sizeof(buf), "%dx%d", g_fb_width, g_fb_height); return ret_string(buf); }
