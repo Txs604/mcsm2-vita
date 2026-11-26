@@ -99,6 +99,7 @@ enum mcsm_method_ids {
     MID_GET_GENERIC_TEXT_DIALOG_FINISHED = 1067,
     MID_GET_GENERIC_TEXT_DIALOG_CANCELLED = 1068,
     MID_GET_GENERIC_TEXT_DIALOG_VALUE = 1069,
+    MID_IS_CHROME_OS = 1070,
 };
 
 /* Battery/perf default (2026-07-20): 720x408 = ~3/4 of native 960x544 (aspect
@@ -733,6 +734,7 @@ static jboolean IsDataAvailable(jmethodID id, va_list args) {
 
 static jboolean IsTV(jmethodID id, va_list args) { (void)id; (void)args; return JNI_FALSE; }
 static jboolean SupportsLowLatency(jmethodID id, va_list args) { (void)id; (void)args; return JNI_FALSE; }
+static jboolean IsChromeOS(jmethodID id, va_list args) { (void)id; (void)args; return JNI_FALSE; }
 static jboolean IsSignedIn(jmethodID id, va_list args) {
     (void)id; (void)args;
 #ifdef DEBUG_SOLOADER
@@ -890,6 +892,7 @@ NameToMethodID nameToMethodId[] = {
     { MID_GET_GENERIC_TEXT_DIALOG_FINISHED, "getGenericTextDialogFinished", METHOD_TYPE_BOOLEAN },
     { MID_GET_GENERIC_TEXT_DIALOG_CANCELLED, "getGenericTextDialogCancelled", METHOD_TYPE_BOOLEAN },
     { MID_GET_GENERIC_TEXT_DIALOG_VALUE, "getGenericTextDialogValue", METHOD_TYPE_OBJECT },
+    { MID_IS_CHROME_OS, "isChromeOS", METHOD_TYPE_BOOLEAN },
 };
 
 MethodsBoolean methodsBoolean[] = {
@@ -911,6 +914,7 @@ MethodsBoolean methodsBoolean[] = {
     { MID_OPEN_GENERIC_TEXT_DIALOG, OpenGenericTextDialog },
     { MID_GET_GENERIC_TEXT_DIALOG_FINISHED, GetGenericTextDialogFinished },
     { MID_GET_GENERIC_TEXT_DIALOG_CANCELLED, GetGenericTextDialogCancelled },
+    { MID_IS_CHROME_OS, IsChromeOS },
 };
 MethodsByte methodsByte[] = {};
 MethodsChar methodsChar[] = {};
