@@ -265,8 +265,8 @@ static void emit_stall_report(const char *reason, const char *snapshot) {
 
 static void call_module_jni_onload(const char *module_name, so_module *module, LaunchStage stage) {
     launch_state_set_stage(stage);
-    if (!module) {
-        telemetry_log("BOOT", "JNI_OnLoad skipped (%s: module NULL)", module_name);
+    if (!module || module->text_base == 0) {
+        telemetry_log("BOOT", "JNI_OnLoad skipped (%s: module not loaded)", module_name);
         return;
     }
     jint (*jni_onload)(JavaVM *vm, void *reserved) = (void *)so_symbol(module, "JNI_OnLoad");
@@ -905,7 +905,7 @@ static void *run_game(void *arg) {
             }
         }
 
-        launch_state_set_stage(LS_NATIVEINIT_CALL);
+launch_state_set_stage(LS_NATIVEINIT_CALL);
         telemetry_log("BOOT", "calling nativeInit");
 
         if (so_mod_main.text_base != 0 && native_init) {
@@ -913,7 +913,7 @@ static void *run_game(void *arg) {
         }
         launch_state_set_stage(LS_NATIVEINIT_RETURN);
         telemetry_log("BOOT", "nativeInit returned");
-
+        
         if (poke_thread_started) {
             pthread_join(poke_thread, NULL);
         }
@@ -974,9 +974,11 @@ int main(void) {
      * all gone; see CHANGES_2026-07-31_r100.md for what it did and why. */
 
     launch_state_set_stage(LS_SOLOADER_INIT);
-    telemetry_log("BOOT", "calling soloader_init_all");
+   telemetry_stamp("BOOT: before soloader_init_all");
+    launch_state_set_stage(LS_SOLOADER_INIT);
     soloader_init_all();
-    telemetry_log("BOOT", "soloader_init_all returned");
+    telemetry_stamp("BOOT: after soloader_init_all");
+
     start_lifecycle_thread();
     start_input_poll_thread();
 
@@ -994,7 +996,6 @@ int main(void) {
     pthread_join(thread, NULL);
 
     sceKernelExitDeleteThread(0);
-}
 
 typedef void (*SdlNativeKeyFn)(JNIEnv *env, jclass cls, jint keycode);
 typedef void (*SdlNativePadFn)(JNIEnv *env, jclass cls, jint device_id, jint keycode);
