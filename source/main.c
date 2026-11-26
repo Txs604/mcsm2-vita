@@ -964,8 +964,8 @@ int main(void) {
      * all gone; see CHANGES_2026-07-31_r100.md for what it did and why. */
 
    // Temporary test: bypass soloader_init_all() and startup threads to isolate C2-12828-1
-    // launch_state_set_stage(LS_SOLOADER_INIT);
-    // soloader_init_all();
+    launch_state_set_stage(LS_SOLOADER_INIT);
+    soloader_init_all();
     // start_lifecycle_thread();
     // start_input_poll_thread();
 
