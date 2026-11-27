@@ -973,26 +973,35 @@ int main(void) {
      * present. splash.c/.h, its GL half in glutil.c and the packaged splash.raw are
      * all gone; see CHANGES_2026-07-31_r100.md for what it did and why. */
 
+    // The game wont boot so Im trying to locate its problem by adding before and after BOOT messages so I can locate the bug.
+
    telemetry_stamp("BOOT: before soloader_init_all");
     launch_state_set_stage(LS_SOLOADER_INIT);
     soloader_init_all();
     telemetry_stamp("BOOT: after soloader_init_all");
 
+    telemetry_stamp("BOOT: before lifecycle_and_input");
     start_lifecycle_thread();
     start_input_poll_thread();
+    telemetry_stamp("BOOT: after lifecycle_and_input");
 
     pthread_t watchdog;
     pthread_attr_t watchdog_attr;
     pthread_attr_init(&watchdog_attr);
     pthread_attr_setstacksize(&watchdog_attr, 0x100000);
+    telemetry_stamp("BOOT: before watchdog_create");
     pthread_create(&watchdog, &watchdog_attr, watchdog_thread, NULL);
+    telemetry_stamp("BOOT: after watchdog_create");
 
     pthread_t thread;
     pthread_attr_t attr;
     pthread_attr_init(&attr);
     pthread_attr_setstacksize(&attr, 0xA00000);
+    telemetry_stamp("BOOT: before run_game_create");
     pthread_create(&thread, &attr, run_game, NULL);
+    telemetry_stamp("BOOT: after run_game_create");
     pthread_join(thread, NULL);
+    telemetry_stamp("BOOT: after run_game_join");
 
     sceKernelExitDeleteThread(0);
 }
