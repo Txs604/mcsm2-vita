@@ -804,7 +804,7 @@ static void start_lifecycle_thread(void) {
     pthread_t thread;
     pthread_attr_t attr;
     pthread_attr_init(&attr);
-    pthread_attr_setstacksize(&attr, 0x40000);
+    pthread_attr_setstacksize(&attr, 0x20000);
 
     if (pthread_create(&thread, &attr, lifecycle_thread, NULL) == 0) {
         pthread_detach(thread);
@@ -816,24 +816,40 @@ static void start_lifecycle_thread(void) {
 
 static void *run_game(void *arg) {
     (void)arg;
+    telemetry_stamp("BOOT: run_game entered");
     launch_state_set_stage(LS_RUN_THREAD_START);
     telemetry_log("BOOT", "run_game thread started");
 
     // FMOD keeps a JavaVM pointer in JNI_OnLoad; without this it can crash in audio bring-up.
-    { extern void mcsm_fmod_native_probe(void); mcsm_fmod_native_probe(); }
+    telemetry_stamp("BOOT: before fmod probe");
+    {
+        extern void mcsm_fmod_native_probe(void);
+        mcsm_fmod_native_probe();
+    }
+    telemetry_stamp("BOOT: after fmod probe");
+
+    telemetry_stamp("BOOT: before jni_onload fmod");
     call_module_jni_onload("libfmod.so", &so_mod_fmod, LS_JNI_ONLOAD_FMOD);
+
+    telemetry_stamp("BOOT: before jni_onload fmodstudio");
     call_module_jni_onload("libfmodstudio.so", &so_mod_fmodstudio, LS_JNI_ONLOAD_FMODSTUDIO);
+
+    telemetry_stamp("BOOT: before jni_onload sdl2");
     call_module_jni_onload("libSDL2.so", &so_mod_sdl2, LS_JNI_ONLOAD_SDL2);
+    telemetry_stamp("BOOT: after jni_onload modules");
 
     // Force Vita-sized surface metrics into SDL Android glue before nativeInit.
     const int fb_w = mcsm_get_framebuffer_width();
     const int fb_h = mcsm_get_framebuffer_height();
+
     void (*on_native_resize)(JNIEnv *env, jclass cls, jint w, jint h, jint format) =
             (void *)so_symbol(&so_mod_sdl2, "Java_org_libsdl_app_SDLActivity_onNativeResize");
     if (on_native_resize) {
         launch_state_set_stage(LS_NATIVE_RESIZE);
         telemetry_log("BOOT", "calling onNativeResize(%d,%d,RGBA8888)", fb_w, fb_h);
+        telemetry_stamp("BOOT: before onNativeResize");
         on_native_resize(&jni, NULL, fb_w, fb_h, 1);
+        telemetry_stamp("BOOT: after onNativeResize");
     } else {
         l_warn("onNativeResize not found in libSDL2.so.");
     }
@@ -843,7 +859,9 @@ static void *run_game(void *arg) {
     if (on_native_surface_changed) {
         launch_state_set_stage(LS_SURFACE_CHANGED);
         telemetry_log("BOOT", "calling onNativeSurfaceChanged");
+        telemetry_stamp("BOOT: before onNativeSurfaceChanged");
         on_native_surface_changed(&jni, NULL);
+        telemetry_stamp("BOOT: after onNativeSurfaceChanged");
     } else {
         l_warn("onNativeSurfaceChanged not found in libSDL2.so.");
     }
@@ -875,7 +893,7 @@ static void *run_game(void *arg) {
     void (*native_init)(JNIEnv *env, jclass cls, jobjectArray args) =
             (void *)so_symbol(&so_mod_main, "Java_org_libsdl_app_SDLActivity_nativeInit");
     if (native_init) {
-        NativeInitPokeContext poke_ctx;
+        static NativeInitPokeContext poke_ctx;
         poke_ctx.on_native_resize = on_native_resize;
         poke_ctx.on_native_surface_changed = on_native_surface_changed;
         poke_ctx.native_resume = native_resume;
@@ -903,21 +921,26 @@ static void *run_game(void *arg) {
             } else {
                 l_warn("failed to create nativeInit poke thread");
             }
+            pthread_attr_destroy(&poke_attr);
         }
 
-launch_state_set_stage(LS_NATIVEINIT_CALL);
+        launch_state_set_stage(LS_NATIVEINIT_CALL);
         telemetry_log("BOOT", "calling nativeInit");
+        telemetry_stamp("BOOT: before nativeInit");
 
         if (so_mod_main.text_base != 0 && native_init) {
             native_init(&jni, NULL, NULL);
         }
+
+        telemetry_stamp("BOOT: after nativeInit");
         launch_state_set_stage(LS_NATIVEINIT_RETURN);
         telemetry_log("BOOT", "nativeInit returned");
-        
+
         if (poke_thread_started) {
             pthread_join(poke_thread, NULL);
         }
     } else {
+        telemetry_stamp("BOOT: nativeInit missing");
         telemetry_log("BOOT", "nativeInit missing");
     }
 
@@ -927,6 +950,7 @@ launch_state_set_stage(LS_NATIVEINIT_CALL);
     }
 
     if (!sdl_main && !native_init) {
+        telemetry_stamp("BOOT: SDL_main missing");
         telemetry_log("BOOT", "SDL_main missing");
         fatal_error("Neither nativeInit nor SDL_main was found in libmain.so.");
     }
@@ -934,13 +958,16 @@ launch_state_set_stage(LS_NATIVEINIT_CALL);
     if (!native_init && sdl_main) {
         launch_state_set_stage(LS_SDL_MAIN_CALL);
         telemetry_log("BOOT", "calling SDL_main");
+        telemetry_stamp("BOOT: before SDL_main");
         int rc = sdl_main();
+        telemetry_stamp("BOOT: after SDL_main");
         launch_state_set_stage(LS_SDL_MAIN_RETURN);
         telemetry_log("BOOT", "SDL_main returned rc=%d", rc);
     }
 
     launch_state_set_stage(LS_IDLE_LOOP);
     telemetry_log("BOOT", "run_game idle loop entered");
+    telemetry_stamp("BOOT: idle loop entered");
     while (1) {
         sceKernelDelayThread(1000000);
     }
