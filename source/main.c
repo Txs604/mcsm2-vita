@@ -821,58 +821,25 @@ static void *run_game(void *arg) {
     telemetry_log("BOOT", "run_game thread started");
 
     // FMOD keeps a JavaVM pointer in JNI_OnLoad; without this it can crash in audio bring-up.
-    telemetry_stamp("BOOT: before fmod probe");
     {
         extern void mcsm_fmod_native_probe(void);
         mcsm_fmod_native_probe();
     }
-    telemetry_stamp("BOOT: after fmod probe");
-
-    telemetry_stamp("BOOT: before jni_onload fmod");
     call_module_jni_onload("libfmod.so", &so_mod_fmod, LS_JNI_ONLOAD_FMOD);
-
-    telemetry_stamp("BOOT: before jni_onload fmodstudio");
     call_module_jni_onload("libfmodstudio.so", &so_mod_fmodstudio, LS_JNI_ONLOAD_FMODSTUDIO);
-
-    telemetry_stamp("BOOT: before jni_onload sdl2");
     call_module_jni_onload("libSDL2.so", &so_mod_sdl2, LS_JNI_ONLOAD_SDL2);
-    telemetry_stamp("BOOT: after jni_onload modules");
 
-    // Force Vita-sized surface metrics into SDL Android glue before nativeInit.
     const int fb_w = mcsm_get_framebuffer_width();
     const int fb_h = mcsm_get_framebuffer_height();
 
+    // Defer onNativeResize / onNativeSurfaceChanged / nativeResume to nativeinit_poke_thread
+    // so Android_Window and the SDL/EGL surface exist before resizing or changing surface state.
     void (*on_native_resize)(JNIEnv *env, jclass cls, jint w, jint h, jint format) =
             (void *)so_symbol(&so_mod_sdl2, "Java_org_libsdl_app_SDLActivity_onNativeResize");
-    if (on_native_resize) {
-        launch_state_set_stage(LS_NATIVE_RESIZE);
-        telemetry_log("BOOT", "calling onNativeResize(%d,%d,RGBA8888)", fb_w, fb_h);
-        telemetry_stamp("BOOT: before onNativeResize");
-        on_native_resize(&jni, NULL, fb_w, fb_h, 1);
-        telemetry_stamp("BOOT: after onNativeResize");
-    } else {
-        l_warn("onNativeResize not found in libSDL2.so.");
-    }
-
     void (*on_native_surface_changed)(JNIEnv *env, jclass cls) =
             (void *)so_symbol(&so_mod_sdl2, "Java_org_libsdl_app_SDLActivity_onNativeSurfaceChanged");
-    if (on_native_surface_changed) {
-        launch_state_set_stage(LS_SURFACE_CHANGED);
-        telemetry_log("BOOT", "calling onNativeSurfaceChanged");
-        telemetry_stamp("BOOT: before onNativeSurfaceChanged");
-        on_native_surface_changed(&jni, NULL);
-        telemetry_stamp("BOOT: after onNativeSurfaceChanged");
-    } else {
-        l_warn("onNativeSurfaceChanged not found in libSDL2.so.");
-    }
-
     void (*native_resume)(JNIEnv *env, jclass cls) =
             (void *)so_symbol(&so_mod_sdl2, "Java_org_libsdl_app_SDLActivity_nativeResume");
-    if (native_resume) {
-        telemetry_log("BOOT", "nativeResume deferred to nativeInit poke");
-    } else {
-        l_warn("nativeResume not found in libSDL2.so.");
-    }
 
     void *(*get_current_window)(void) =
             (void *)so_symbol(&so_mod_sdl2, "SDL_GL_GetCurrentWindow_REAL");
