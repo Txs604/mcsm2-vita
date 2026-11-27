@@ -973,7 +973,6 @@ int main(void) {
      * present. splash.c/.h, its GL half in glutil.c and the packaged splash.raw are
      * all gone; see CHANGES_2026-07-31_r100.md for what it did and why. */
 
-    launch_state_set_stage(LS_SOLOADER_INIT);
    telemetry_stamp("BOOT: before soloader_init_all");
     launch_state_set_stage(LS_SOLOADER_INIT);
     soloader_init_all();
@@ -996,6 +995,7 @@ int main(void) {
     pthread_join(thread, NULL);
 
     sceKernelExitDeleteThread(0);
+}
 
 typedef void (*SdlNativeKeyFn)(JNIEnv *env, jclass cls, jint keycode);
 typedef void (*SdlNativePadFn)(JNIEnv *env, jclass cls, jint device_id, jint keycode);
